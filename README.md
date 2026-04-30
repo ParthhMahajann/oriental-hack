@@ -1,5 +1,5 @@
-🎓 SigmaLearn
-SigmaLearn is an AI-powered educational content generator that creates animated videos with voiceovers and interactive quizzes — all from a single text prompt. It's designed for students, educators, and learners who want visually rich explanations without video editing, scripting, or animation experience.
+🎓 Gyan AI
+Gyan AI is an AI-powered educational content generator that creates animated videos with voiceovers and interactive quizzes — all from a single text prompt. It's designed for students, educators, and learners who want visually rich explanations without video editing, scripting, or animation experience.
 
 ✨ Features
 🎬 Automatic Video Generation
