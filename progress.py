@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-import redis as redis_lib
+import redis
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +9,7 @@ _REDIS_URL = os.getenv("REDIS_URL")
 if not _REDIS_URL:
     raise EnvironmentError("REDIS_URL is required for progress tracking")
 
-_client = redis_lib.from_url(_REDIS_URL, decode_responses=True)
+_client = redis.from_url(_REDIS_URL, decode_responses=True)
 
 _TTL = 3600  # 1 hour
 

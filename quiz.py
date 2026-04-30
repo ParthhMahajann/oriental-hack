@@ -2,19 +2,21 @@ import os
 import re
 import json
 import logging
-import google.generativeai as genai
+from google import genai
 from prompts import quiz_system_prompt
 
 logger = logging.getLogger(__name__)
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
 def generate_quiz(script):
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
         full_text = "\n".join([s['voice_script'] for s in script])
-        response = model.generate_content(quiz_system_prompt + "\n\nScript:\n" + full_text)
+        response = _client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=quiz_system_prompt + "\n\nScript:\n" + full_text,
+        )
         text = response.text
 
         questions = re.findall(

@@ -3,6 +3,10 @@ import json
 import uuid
 import logging
 import threading
+from dotenv import load_dotenv
+
+load_dotenv()  # must be first, before any module that reads env vars at import time
+
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,14 +15,11 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_migrate import Migrate
-from dotenv import load_dotenv
 
 from models import db, User, Video, Quiz
 from main import generate_video
 from quiz import generate_quiz
 from progress import set_progress, get_progress
-
-load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -58,7 +59,7 @@ def _rate_limit_key():
         return f"user:{current_user.id}"
     return get_remote_address()
 
-limiter = Limiter(app=app, key_func=_rate_limit_key, default_limits=[])
+limiter = Limiter(app=app, key_func=_rate_limit_key, default_limits=[], storage_uri=os.getenv("REDIS_URL"))
 
 
 # ── Flask-Login ────────────────────────────────────────────────────────────────

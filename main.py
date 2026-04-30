@@ -7,9 +7,13 @@ from pathlib import Path
 from jinja2 import Template
 import tempfile
 import shutil
-import google.generativeai as genai
-import edge_tts
 from dotenv import load_dotenv
+
+load_dotenv()  # must run before any module that reads env vars at import time
+
+from google import genai
+from google.genai import types
+import edge_tts
 from werkzeug.utils import secure_filename
 
 from prompts import script_system_prompt, animation_system_prompt, pdf_system_prompt
@@ -19,11 +23,9 @@ from helper import safe_launch, clear_folder, run_async_safely
 from progress import set_progress
 from pdf import extract_last_frame, generate_pdf
 
-load_dotenv()
-
 logger = logging.getLogger(__name__)
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+_genai_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 if os.name == "nt":
     possible_paths = [
@@ -61,15 +63,13 @@ def generate_response(msg_history, model="gemini-2.0-flash"):
     def _to_gemini_role(role):
         return "user" if role == "user" else "model"
 
-    history = [
-        {"role": _to_gemini_role(m["role"]), "parts": [m["content"]]}
-        for m in messages[:-1]
+    contents = [
+        types.Content(role=_to_gemini_role(m["role"]), parts=[types.Part(text=m["content"])])
+        for m in messages
     ]
-    last_content = messages[-1]["content"]
 
-    model_obj = genai.GenerativeModel(model, system_instruction=system_instruction)
-    chat = model_obj.start_chat(history=history)
-    response = chat.send_message(last_content)
+    config = types.GenerateContentConfig(system_instruction=system_instruction) if system_instruction else None
+    response = _genai_client.models.generate_content(model=model, contents=contents, config=config)
     return response.text
 
 
